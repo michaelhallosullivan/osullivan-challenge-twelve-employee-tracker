@@ -1,12 +1,12 @@
-INSERT INTO employees (employee id, first_name, last_name, role_id, manager_id)
-    (001, "John", "Doe", 001, null),
-    (002, "Mike", "Chan", 002, 001),
-    (003, "Ashley", "Rodriguez", 003, null),
-    (004, "Kevin", "Tupik", 004, 003),
-    (005, "Kunal", "Singh", 005, null),
-    (006, "Malia", "Brown", 006, 005),
-    (007, "Sarah", "Lourd", 007, null),
-    (008, "Tom", "Allen", 008, 007);
+INSERT INTO employees (employee id, first_name, last_name, role_id, is_manager, manager_id)
+    (001, "John", "Doe", 001, true, null),
+    (002, "Mike", "Chan", 002, false, 001),
+    (003, "Ashley", "Rodriguez", 003, true, null),
+    (004, "Kevin", "Tupik", 004, false, 003),
+    (005, "Kunal", "Singh", 005, true, null),
+    (006, "Malia", "Brown", 006, false, 005),
+    (007, "Sarah", "Lourd", 007, true, null),
+    (008, "Tom", "Allen", 008, false, 007);
 
 
 

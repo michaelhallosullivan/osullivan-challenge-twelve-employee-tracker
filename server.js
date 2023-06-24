@@ -1,4 +1,5 @@
 const express = require('express');
+const { default: inquirer } = require('inquirer');
 // Import and require mysql2
 const mysql = require('mysql2');
 
@@ -23,6 +24,67 @@ const db = mysql.createConnection(
   console.log(`Connected to the company_db database.`)
 );
 
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+inquirer
+  .prompt([
+    {
+        type: "list",
+        message: "What would you like to do?",
+        name: "admin",
+        choices: ["View all Employees", "Add Employee", "Update Employee Role", "View all Roles", "Add Role", "View all Departments", "Add Department", "Quit"]
+    }
+  ])
+  .then((response) => {
+    if (response.admin === "View all Employees") {
+      db.query('SELECT * FROM employees', function (err, results) {
+        try {
+          console.log(results);
+        } catch (err) {
+          res.status(500).json(err);
+        }
+      });
+    }
+    if (response.admin === "Add Employee") {
+      
+    }
+    if (response.admin === "Update Employee Role") {
+      
+    }
+    if (response.admin === "View all Roles") {
+      db.query('SELECT * FROM roles', function (err, results) {
+        try {
+          console.log(results);
+        } catch (err) {
+          res.status(500).json(err);
+        }
+      });
+    }
+    if (response.admin === "Add Role") {
+      
+    }
+    if (response.admin === "View all Departments") {
+      db.query('SELECT * FROM departments', function (err, results) {
+        try {
+          console.log(results);
+        } catch (err) {
+          res.status(500).json(err);
+        }
+      });
+    }
+    if (response.admin === "Add Department") {
+      
+    }
+    if (response.admin === "Quit") {
+      db.end();
+    }
+  });
+
+
+
+/* 
 // Query database
 db.query('SELECT * FROM students', function (err, results) {
   console.log(results);
@@ -33,6 +95,51 @@ app.use((req, res) => {
   res.status(404).end();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+        try {
+          const userData = await User.findAll({
+            attributes: { exclude: ['password'] },
+            order: [['name', 'ASC']],
+          });
+        } catch (err) {
+          res.status(500).json(err);
+        }
+
+db.query('SELECT * FROM departments', function (err, results) {
+        try {
+          let departments = results.map(departments => {
+            return { name : departments.name, value: departments.id };
+          });
+          inquirer.prompt([
+            {   
+                type: "input",
+                name: "title",
+                message: "What is the title of the role?"
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "What is the salary for the role?",
+            },
+            {
+                type: "list",
+                name: "department",
+                message: "In which department will the new role be?",
+                choices: departments,
+            }
+          ])
+          .then((response) => {
+          db.query(`'INSERT INTO roles (job_title, salary, department_id) VALUES (${response.title}, ${response.salary}, ${response.department.value})'`, function (err, results) {
+              console.log(results);
+          });
+        }) 
+        } catch (err) {
+          res.status(500).json(err);
+        })
+      }
+      });
+
+INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country)
+VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+
+*/

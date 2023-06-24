@@ -25,12 +25,10 @@ CREATE TABLE employees (
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
   role_id INT,
+  manager VARCHAR(30),
   is_manager BOOLEAN,
-  manager_id INT,
   PRIMARY KEY(id),
   FOREIGN KEY (role_id)
-    REFERENCES roles(id),
-  FOREIGN KEY (manager_id)
-    REFERENCES employees(id)
+    REFERENCES roles(id)
   ON DELETE CASCADE
 );

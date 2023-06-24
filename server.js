@@ -1,3 +1,6 @@
+//JOIN TABLES AT FOREIGN KEYS
+//WRITE FUNCTIONS FOR ADDING ROLES, ADDING DEPARTMENTS, ADDING EMPLOYEES, UPDATING EMPLOYEE ROLES
+
 const express = require('express');
 const inquirer = require("inquirer");
 // Import and require mysql2
@@ -28,6 +31,7 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+function menu() {
 inquirer
   .prompt([
     {
@@ -39,9 +43,10 @@ inquirer
   ])
   .then((response) => {
     if (response.admin === "View all Employees") {
-      db.query('SELECT * FROM employees', function (err, results) {
+      db.query('SELECT employees.id, employees.first_name, employees.last_name, roles.job_title, roles.salary, departments.department_name, employees.manager FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id', function (err, results) {
         try {
-          console.log(results);
+          console.table(results);
+          menu();
         } catch (err) {
           res.status(500).json(err);
         }
@@ -54,9 +59,10 @@ inquirer
       
     }
     if (response.admin === "View all Roles") {
-      db.query('SELECT * FROM roles', function (err, results) {
+      db.query('SELECT roles.job_title, roles.salary, departments.department_name FROM departments JOIN roles ON roles.department_id = departments.id', function (err, results) {
         try {
-          console.log(results);
+          console.table(results);
+          menu();
         } catch (err) {
           res.status(500).json(err);
         }
@@ -68,7 +74,8 @@ inquirer
     if (response.admin === "View all Departments") {
       db.query('SELECT * FROM departments', function (err, results) {
         try {
-          console.log(results);
+          console.table(results);
+          menu();
         } catch (err) {
           res.status(500).json(err);
         }
@@ -81,8 +88,9 @@ inquirer
       db.end();
     }
   });
+};
 
-
+menu();
 
 /* 
 // Query database

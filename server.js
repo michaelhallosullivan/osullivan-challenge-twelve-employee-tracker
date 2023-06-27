@@ -79,8 +79,10 @@ menu();
 
 function addRole() {
   db.query('SELECT * FROM departments', function (err, results) {
+    let departments = [];
     let names = [];
     for (i=0; i<results.length; i++) {
+      departments.push(results[i]);
       names.push(results[i].department_name);
     };
     inquirer.prompt([
@@ -102,51 +104,15 @@ function addRole() {
       }
     ])
     .then((response) => {
-      for (i=0; i<results.length; i++) {
-        if (response.department === results[i].department_name) {
-          let id = results[i].id
-          console.log(response.title);
-          console.log(response.salary);
-          console.log(id);
-        };
-      };
+      let item = departments.find(item => item.department_name === response.department);
+      let department_id = item.id;
+      let job_title = response.title;
+      let salary = response.salary;
+      db.query('INSERT INTO roles (job_title, department_id, salary) VALUES (?, ?, ?)', [job_title, department_id,salary], function (err, results) {
+        if (err) {throw err};
+        console.table(results);
+        menu();
+      });
     });
   });
 };
-
-/*
-function addRole() {
-  db.query('SELECT department_name as name FROM departments', function (err, results) {
-    let departments = [];
-    for (i=0; i<results.length; i++) {
-      departments.push(results[i].name);
-    };
-    inquirer.prompt([
-      {   
-          type: "input",
-          name: "title",
-          message: "What is the title of the role?"
-      },
-      {
-          type: "input",
-          name: "salary",
-          message: "What is the salary for the role?",
-      },
-      {
-          type: "list",
-          name: "department",
-          message: "In which department will the new role be?",
-          choices: departments
-      }
-    ])
-    .then((response) => {
-      console.log(response.department);
-    });
-  });
-};
-
-db.query(`'INSERT INTO roles (job_title, department_id, salary) VALUES (${response.title}, ${id}, ${response.salary})'`, function (err, results) {
-            console.table(results);
-            menu();
-          });
-*/

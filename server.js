@@ -110,9 +110,25 @@ function addRole() {
       let salary = response.salary;
       db.query('INSERT INTO roles (job_title, department_id, salary) VALUES (?, ?, ?)', [job_title, department_id,salary], function (err, results) {
         if (err) {throw err};
-        console.table(results);
         menu();
       });
+    });
+  });
+};
+
+function addDepartment() {
+  inquirer.prompt([
+    {   
+        type: "input",
+        name: "name",
+        message: "What is the name of the department?"
+    }
+  ])
+  .then((response) => {
+    let department_name = response.name;
+    db.query(`INSERT INTO departments (department_name) VALUES (?)`, [department_name], function (err, results) {
+      if (err) {throw err};
+      menu();
     });
   });
 };

@@ -1,6 +1,3 @@
-//JOIN TABLES AT FOREIGN KEYS
-//WRITE FUNCTIONS FOR ADDING ROLES, ADDING DEPARTMENTS, ADDING EMPLOYEES, UPDATING EMPLOYEE ROLES
-
 const express = require('express');
 const inquirer = require("inquirer");
 // Import and require mysql2
@@ -44,12 +41,8 @@ inquirer
   .then((response) => {
     if (response.admin === "View all Employees") {
       db.query('SELECT employees.id, employees.first_name, employees.last_name, roles.job_title, roles.salary, departments.department_name, employees.manager FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id', function (err, results) {
-        try {
           console.table(results);
           menu();
-        } catch (err) {
-          res.status(500).json(err);
-        }
       });
     }
     if (response.admin === "Add Employee") {
@@ -60,29 +53,21 @@ inquirer
     }
     if (response.admin === "View all Roles") {
       db.query('SELECT roles.job_title, roles.salary, departments.department_name FROM departments JOIN roles ON roles.department_id = departments.id', function (err, results) {
-        try {
           console.table(results);
           menu();
-        } catch (err) {
-          res.status(500).json(err);
-        }
       });
     }
     if (response.admin === "Add Role") {
-      
+      addRole();
     }
     if (response.admin === "View all Departments") {
       db.query('SELECT * FROM departments', function (err, results) {
-        try {
           console.table(results);
           menu();
-        } catch (err) {
-          res.status(500).json(err);
-        }
       });
     }
     if (response.admin === "Add Department") {
-      
+      addDepartment();
     }
     if (response.admin === "Quit") {
       db.end();
@@ -92,62 +77,76 @@ inquirer
 
 menu();
 
-/* 
-// Query database
-db.query('SELECT * FROM students', function (err, results) {
-  console.log(results);
-});
-
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-  res.status(404).end();
-});
-
-
-        try {
-          const userData = await User.findAll({
-            attributes: { exclude: ['password'] },
-            order: [['name', 'ASC']],
-          });
-        } catch (err) {
-          res.status(500).json(err);
-        }
-
-db.query('SELECT * FROM departments', function (err, results) {
-        try {
-          let departments = results.map(departments => {
-            return { name : departments.name, value: departments.id };
-          });
-          inquirer.prompt([
-            {   
-                type: "input",
-                name: "title",
-                message: "What is the title of the role?"
-            },
-            {
-                type: "input",
-                name: "salary",
-                message: "What is the salary for the role?",
-            },
-            {
-                type: "list",
-                name: "department",
-                message: "In which department will the new role be?",
-                choices: departments,
-            }
-          ])
-          .then((response) => {
-          db.query(`'INSERT INTO roles (job_title, salary, department_id) VALUES (${response.title}, ${response.salary}, ${response.department.value})'`, function (err, results) {
-              console.log(results);
-          });
-        }) 
-        } catch (err) {
-          res.status(500).json(err);
-        })
+function addRole() {
+  db.query('SELECT * FROM departments', function (err, results) {
+    let names = [];
+    for (i=0; i<results.length; i++) {
+      names.push(results[i].department_name);
+    };
+    inquirer.prompt([
+      {   
+          type: "input",
+          name: "title",
+          message: "What is the title of the role?"
+      },
+      {
+          type: "input",
+          name: "salary",
+          message: "What is the salary for the role?",
+      },
+      {
+          type: "list",
+          name: "department",
+          message: "In which department will the new role be?",
+          choices: names
       }
-      });
+    ])
+    .then((response) => {
+      for (i=0; i<results.length; i++) {
+        if (response.department === results[i].department_name) {
+          let id = results[i].id
+          console.log(response.title);
+          console.log(response.salary);
+          console.log(id);
+        };
+      };
+    });
+  });
+};
 
-INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country)
-VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+/*
+function addRole() {
+  db.query('SELECT department_name as name FROM departments', function (err, results) {
+    let departments = [];
+    for (i=0; i<results.length; i++) {
+      departments.push(results[i].name);
+    };
+    inquirer.prompt([
+      {   
+          type: "input",
+          name: "title",
+          message: "What is the title of the role?"
+      },
+      {
+          type: "input",
+          name: "salary",
+          message: "What is the salary for the role?",
+      },
+      {
+          type: "list",
+          name: "department",
+          message: "In which department will the new role be?",
+          choices: departments
+      }
+    ])
+    .then((response) => {
+      console.log(response.department);
+    });
+  });
+};
 
+db.query(`'INSERT INTO roles (job_title, department_id, salary) VALUES (${response.title}, ${id}, ${response.salary})'`, function (err, results) {
+            console.table(results);
+            menu();
+          });
 */

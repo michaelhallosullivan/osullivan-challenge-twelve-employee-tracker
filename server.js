@@ -46,7 +46,7 @@ inquirer
       });
     }
     if (response.admin === "Add Employee") {
-      
+      addEmployee();
     }
     if (response.admin === "Update Employee Role") {
       
@@ -109,7 +109,7 @@ function addRole() {
       let job_title = response.title;
       let salary = response.salary;
       db.query('INSERT INTO roles (job_title, department_id, salary) VALUES (?, ?, ?)', [job_title, department_id,salary], function (err, results) {
-        if (err) {throw err};
+        if (err) throw (err);
         menu();
       });
     });
@@ -131,4 +131,74 @@ function addDepartment() {
       menu();
     });
   });
+};
+
+function addEmployee() {
+  let roles = [];
+  let role_titles = [];
+  let managers = [];
+  let manager_names = ["No"];
+  function fetchManagers() {
+    db.query('SELECT * FROM employees WHERE is_manager = 1', function (err, results) {
+        for (i=0; i<results.length; i++) {
+          managers.push(results[i]);
+          manager_names.push(results[i].first_name + " " + results[i].last_name);
+        };
+      });
+    };
+  function fetchRoles() {
+    db.query('SELECT roles.job_title, roles.id FROM roles', function (err, results) {
+        for (i=0; i<results.length; i++) {
+          roles.push(results[i]);
+          role_titles.push(results[i].job_title);
+        };
+      });
+    };
+  fetchManagers();
+  fetchRoles();
+  inquirer.prompt([
+      {   
+          type: "input",
+          name: "first_name",
+          message: "What is the employee's first name?"
+      },
+      {
+          type: "input",
+          name: "last_name",
+          message: "What is the employee's last name?",
+      },
+      {
+          type: "list",
+          name: "role",
+          message: "Which role will the employee be taking on?",
+          choices: role_titles
+      },
+      {
+        type: "list",
+        name: "manager",
+        message: "Does this employee have a manager?",
+        choices: manager_names
+      }
+    ])
+  .then((response) => {
+    let first_name = response.first_name;
+    let last_name = response.last_name;
+    let item = roles.find(item => item.job_title === response.role);
+    let role_id = item.id;
+    let manager = null;
+    let is_manager = false;
+    function checkManager() {
+    if (response.manager === "No") {
+      is_manager = true;
+    }
+    else {
+      manager = response.manager;
+    }
+    };
+    checkManager();
+    db.query('INSERT INTO employees (first_name, last_name, role_id, manager, is_manager) VALUES (?, ?, ?, ?, ?)', [first_name, last_name, role_id, manager, is_manager], function (err, results) {
+      if (err) throw (err);
+      menu();
+    });
+});
 };

@@ -13,6 +13,6 @@ SELECT *
 FROM employees
 WHERE is_manager = 1;
 
-SELECT roles.job_title, roles.id, employees.first_name, employees.last_name, employees.id 
+SELECT roles.job_title, roles.id, employees.first_name, employees.last_name, employees.id, employees.role_id
 FROM employees
 JOIN roles ON roles.id = employees.role_id;

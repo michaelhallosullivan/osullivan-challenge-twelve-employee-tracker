@@ -49,10 +49,10 @@ inquirer
       addEmployee();
     }
     if (response.admin === "Update Employee Role") {
-      
+      updateRole();
     }
     if (response.admin === "View all Roles") {
-      db.query('SELECT roles.job_title, roles.salary, departments.department_name FROM departments JOIN roles ON roles.department_id = departments.id', function (err, results) {
+      db.query('SELECT roles.id, roles.job_title, roles.salary, departments.department_name FROM departments JOIN roles ON roles.department_id = departments.id', function (err, results) {
           console.table(results);
           menu();
       });
@@ -140,7 +140,7 @@ function addEmployee() {
   let manager_names = ["No"];
   function fetchManagers() {
     db.query('SELECT * FROM employees WHERE is_manager = 1', function (err, results) {
-        for (i=0; i<results.length; i++) {
+        for (let i=0; i<results.length; i++) {
           managers.push(results[i]);
           manager_names.push(results[i].first_name + " " + results[i].last_name);
         };
@@ -148,10 +148,10 @@ function addEmployee() {
     };
   function fetchRoles() {
     db.query('SELECT roles.job_title, roles.id FROM roles', function (err, results) {
-        for (i=0; i<results.length; i++) {
+        for (let i=0; i<results.length; i++) {
           roles.push(results[i]);
           role_titles.push(results[i].job_title);
-        };
+         };
       });
     };
   fetchManagers();
@@ -202,3 +202,100 @@ function addEmployee() {
     });
 });
 };
+
+function updateRole() {
+  db.query('SELECT roles.job_title, roles.id, employees.first_name, employees.last_name, employees.id, employees.role_id FROM employees JOIN roles ON roles.id = employees.role_id', function (err, results) {
+    let roles = [];
+    let role_titles = [];
+    let employees = [];
+    let employee_names = [];
+    for (let i=0; i<results.length; i++) {
+      let employeeResults = {
+        id: results[i].id,
+        first_name: results[i].first_name,
+        last_name: results[i].last_name
+      }
+      let roleResults = {
+        role_id: results[i].role_id,
+        job_title: results[i].job_title
+      }
+      roles.push(roleResults);
+      role_titles.push(results[i].job_title);
+      employees.push(employeeResults);
+      employee_names.push(results[i].first_name + " " + results[i].last_name);
+      console.log(roles);
+      console.log(employees);
+    };
+  inquirer.prompt([
+      {
+          type: "list",
+          name: "employee",
+          message: "Which employee would you like to update?",
+          choices: employee_names
+      },
+      {
+        type: "list",
+        name: "role",
+        message: "What is the employee's new role?",
+        choices: role_titles
+      }
+    ])
+    .then((response) => {
+      let employeeItem = employees.find(employeeItem => (employeeItem.first_name + " " + employeeItem.last_name) === response.employee);
+      let employee_id = employeeItem.id;
+      let roleItem = roles.find(roleItem => roleItem.job_title === response.role);
+      let role_id = roleItem.role_id;
+      db.query(`UPDATE employees SET role_id = ${role_id} WHERE id = ${employee_id}`, function (err, results) {
+        if (err) throw (err);
+        menu();
+      });
+    });
+  });
+};
+
+
+
+/*
+function updateRole() {
+  let roles = [];
+  let role_titles = [];
+  let employees = [];
+  let employee_names = [];
+  function fetchRoles() {
+    db.query('SELECT roles.job_title, roles.id FROM roles', function (err, results) {
+        for (i=0; i<results.length; i++) {
+          roles.push(results[i]);
+          role_titles.push(results[i].job_title);
+         };
+      });
+  };
+  function fetchEmployees() {
+    db.query('SELECT * FROM employees', function (err, results) {
+       for (i=0; i<results.length; i++) {
+          employees.push(results[i]);
+          employee_names.push(results[i].first_name + " " + results[i].last_name);
+        };
+    });
+  };
+  fetchRoles();
+  fetchEmployees();
+  inquirer.prompt([
+    {   
+        type: "list",
+        name: "employee",
+        message: "Which employee would you like to update?",
+        choices: employee_names
+    },
+    {
+      type: "list",
+      name: "role",
+      message: "What is the employee's new role?",
+      choices: role_titles
+    }
+  ])
+  .then((response) => {
+    console.log(response.employee);
+    console.log(response.role);
+  });
+};
+*/
